@@ -1527,8 +1527,6 @@ function PrivacyPage({ onNav }) {
 
 // ─── APP ─────────────────────────────────────────────────────────────────────
 
-const TWEAK_DEFAULTS = { accent:"#ba8b8e", grain:0.045, scanline:0.035, dotgrid:0.06 };
-
 function App() {
   const [page, setPage] = useState("home");
   const [t, set] = useTweaks(TWEAK_DEFAULTS);
