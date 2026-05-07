@@ -1,293 +1,342 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leadwise AI — Pipeline, engineered from signal.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-
-<style>/* LEADWISE AI — DARK EDITORIAL NEOBRUTALIST */
-
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
 :root {
   --bg: #0a0a0b;
   --bg-2: #0e0e10;
   --fg: #f2f2f0;
-  --fg-dim: rgba(242, 242, 240, 0.56);
-  --fg-faint: rgba(242, 242, 240, 0.32);
-  --fg-ghost: rgba(242, 242, 240, 0.14);
-  --line: rgba(242, 242, 240, 0.14);
-  --line-strong: rgba(242, 242, 240, 0.24);
+  --fg-dim: rgba(242,242,240,0.56);
+  --fg-faint: rgba(242,242,240,0.32);
+  --fg-ghost: rgba(242,242,240,0.14);
+  --line: rgba(242,242,240,0.14);
+  --line-strong: rgba(242,242,240,0.24);
   --accent: #ba8b8e;
-  --accent-dim: rgba(186, 139, 142, 0.35);
-  --accent-faint: rgba(186, 139, 142, 0.14);
+  --accent-dim: rgba(186,139,142,0.35);
+  --accent-faint: rgba(186,139,142,0.14);
   --grain: 0.045;
   --scanline: 0.035;
   --dotgrid: 0.06;
-
-  --f-display: "Space Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --f-body: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --f-mono: "JetBrains Mono", "IBM Plex Mono", "Space Mono", ui-monospace, monospace;
-
+  --f-display: "Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-body: "Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --f-mono: "JetBrains Mono","IBM Plex Mono","Space Mono",ui-monospace,monospace;
   --container: 1440px;
-  --pad-x: clamp(24px, 4vw, 64px);
+  --pad-x: clamp(24px,4vw,64px);
 }
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);}
+body{font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;}
 
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--bg); color: var(--fg); }
-body {
-  font-family: var(--f-body);
-  font-size: 15px;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "ss01", "cv11";
-  overflow-x: hidden;
-}
+.tex-grain,.tex-scan,.tex-dots{position:fixed;inset:0;pointer-events:none;z-index:1;}
+.tex-grain{opacity:var(--grain);mix-blend-mode:overlay;}
+.tex-scan{background:repeating-linear-gradient(to bottom,rgba(255,255,255,var(--scanline)) 0px,rgba(255,255,255,var(--scanline)) 1px,transparent 1px,transparent 3px);}
+.tex-dots{background-image:radial-gradient(rgba(255,255,255,var(--dotgrid)) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(to bottom,black,black 60%,transparent);-webkit-mask-image:linear-gradient(to bottom,black,black 60%,transparent);}
+.tex-vignette{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 30%,transparent 40%,rgba(0,0,0,0.45) 100%);}
+.app-root{position:relative;z-index:3;}
 
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; }
+.mono{font-family:var(--f-mono);}
+.label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-dim);}
+.label-accent{font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);}
+.hint{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;color:var(--fg-faint);text-transform:uppercase;}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:300;letter-spacing:-0.02em;margin:0;color:var(--fg);}
+h1{font-size:clamp(56px,8.5vw,136px);line-height:0.94;letter-spacing:-0.035em;}
+h2{font-size:clamp(40px,5.2vw,84px);line-height:0.98;letter-spacing:-0.03em;}
+h3{font-size:clamp(22px,2vw,30px);line-height:1.15;}
+p{margin:0;color:var(--fg-dim);}
+.lead{font-size:17px;color:rgba(242,242,240,0.72);line-height:1.5;max-width:58ch;}
 
-/* Backdrop textures — fixed, barely visible */
-.tex-grain, .tex-scan, .tex-dots {
-  position: fixed; inset: 0; pointer-events: none; z-index: 1;
-}
-.tex-grain {
-  opacity: var(--grain);
-  mix-blend-mode: overlay;
-}
-.tex-scan {
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255, var(--scanline)) 0px,
-    rgba(255,255,255, var(--scanline)) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-.tex-dots {
-  background-image: radial-gradient(rgba(255,255,255,var(--dotgrid)) 1px, transparent 1px);
-  background-size: 22px 22px;
-  background-position: 0 0;
-  mask-image: linear-gradient(to bottom, black, black 60%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, black, black 60%, transparent);
-}
+.container{max-width:var(--container);margin:0 auto;padding:0 var(--pad-x);}
 
-/* Vignette */
-.tex-vignette {
-  position: fixed; inset: 0; pointer-events: none; z-index: 2;
-  background: radial-gradient(ellipse at 50% 30%, transparent 40%, rgba(0,0,0,0.45) 100%);
-}
+.frame{position:relative;border:1px solid var(--line);}
+.crop-tl,.crop-tr,.crop-bl,.crop-br{position:absolute;width:14px;height:14px;border-color:var(--accent);pointer-events:none;}
+.crop-tl{top:-1px;left:-1px;border-top:1px solid var(--accent);border-left:1px solid var(--accent);transform:translate(-6px,-6px);}
+.crop-tr{top:-1px;right:-1px;border-top:1px solid var(--accent);border-right:1px solid var(--accent);transform:translate(6px,-6px);}
+.crop-bl{bottom:-1px;left:-1px;border-bottom:1px solid var(--accent);border-left:1px solid var(--accent);transform:translate(-6px,6px);}
+.crop-br{bottom:-1px;right:-1px;border-bottom:1px solid var(--accent);border-right:1px solid var(--accent);transform:translate(6px,6px);}
 
-.app-root { position: relative; z-index: 3; }
+.section{position:relative;padding:clamp(80px,10vw,160px) 0;border-top:1px solid var(--line);}
+.section-label{display:flex;align-items:center;gap:12px;margin-bottom:48px;}
+.section-label .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent);}
+.section-label .tick{flex:1;height:1px;background:var(--line);}
 
-/* Typography primitives */
-.mono { font-family: var(--f-mono); }
-.label {
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fg-dim);
-}
-.label-accent {
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-.hint {
-  font-family: var(--f-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  color: var(--fg-faint);
-  text-transform: uppercase;
-}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border:1px solid var(--line-strong);background:transparent;color:var(--fg);font-family:var(--f-mono);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;transition:all 180ms ease;position:relative;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn .arrow{transition:transform 180ms ease;}
+.btn:hover .arrow{transform:translateX(4px);}
+.btn-primary{border-color:var(--accent);color:var(--accent);}
+.btn-primary:hover{background:var(--accent-faint);}
+.btn-ghost{border:none;padding:14px 0;color:var(--fg-dim);}
+.btn-ghost:hover{color:var(--accent);border:none;}
 
-h1, h2, h3, h4 {
-  font-family: var(--f-display);
-  font-weight: 300;
-  letter-spacing: -0.02em;
-  margin: 0;
-  color: var(--fg);
-}
-h1 { font-size: clamp(56px, 8.5vw, 136px); line-height: 0.94; letter-spacing: -0.035em; }
-h2 { font-size: clamp(40px, 5.2vw, 84px); line-height: 0.98; letter-spacing: -0.03em; }
-h3 { font-size: clamp(22px, 2vw, 30px); line-height: 1.15; }
+.target{width:10px;height:10px;border:1px solid var(--accent);position:relative;display:inline-block;}
+.target::before,.target::after{content:"";position:absolute;background:var(--accent);}
+.target::before{left:50%;top:-3px;bottom:-3px;width:1px;transform:translateX(-50%);}
+.target::after{top:50%;left:-3px;right:-3px;height:1px;transform:translateY(-50%);}
 
-p { margin: 0; color: var(--fg-dim); }
-.lead { font-size: 17px; color: rgba(242,242,240,0.72); line-height: 1.5; max-width: 58ch; }
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--line-strong);border-radius:2px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.06em;color:var(--fg-dim);}
+.pill .pd{width:5px;height:5px;border-radius:50%;}
+.pill-hot{border-color:rgba(186,139,142,0.5);color:var(--accent);}
+.pill-hot .pd{background:var(--accent);box-shadow:0 0 6px var(--accent);}
+.pill-warm{border-color:rgba(214,174,150,0.4);color:#d6ae96;}
+.pill-warm .pd{background:#d6ae96;}
+.pill-cold{border-color:rgba(150,170,190,0.3);color:#96aabe;}
+.pill-cold .pd{background:#96aabe;}
 
-/* Layout */
-.container {
-  max-width: var(--container);
-  margin: 0 auto;
-  padding: 0 var(--pad-x);
-}
+.hairline{height:1px;background:var(--line);width:100%;}
+.vrule{width:1px;background:var(--line);align-self:stretch;}
 
-/* Crop-mark frame — the core visual motif */
-.frame {
-  position: relative;
-  border: 1px solid var(--line);
-}
-.frame::before,
-.frame::after,
-.frame > .crop-tl,
-.frame > .crop-tr,
-.frame > .crop-bl,
-.frame > .crop-br { content: ""; }
+@keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.rise{animation:rise 700ms cubic-bezier(.2,.7,.2,1) both;}
+@keyframes blink{0%,55%{opacity:1;}56%,100%{opacity:0.25;}}
+.blink{animation:blink 1.6s infinite;}
+@keyframes marq{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.marquee{display:flex;gap:20px;white-space:nowrap;animation:marq 25s linear infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}  }
 
-.crop-tl, .crop-tr, .crop-bl, .crop-br {
-  position: absolute;
-  width: 14px; height: 14px;
-  border-color: var(--accent);
-  pointer-events: none;
-}
-.crop-tl { top: -1px; left: -1px; border-top: 1px solid var(--accent); border-left: 1px solid var(--accent); transform: translate(-6px, -6px); }
-.crop-tr { top: -1px; right: -1px; border-top: 1px solid var(--accent); border-right: 1px solid var(--accent); transform: translate(6px, -6px); }
-.crop-bl { bottom: -1px; left: -1px; border-bottom: 1px solid var(--accent); border-left: 1px solid var(--accent); transform: translate(-6px, 6px); }
-.crop-br { bottom: -1px; right: -1px; border-bottom: 1px solid var(--accent); border-right: 1px solid var(--accent); transform: translate(6px, 6px); }
+.feed-row{transition:background 160ms ease;}
+.feed-row:hover{background:rgba(186,139,142,0.05);}
+.no-scrollbar::-webkit-scrollbar{display:none;}
+.no-scrollbar{scrollbar-width:none;}
 
-/* Section scaffolding */
-.section {
-  position: relative;
-  padding: clamp(80px, 10vw, 160px) 0;
-  border-top: 1px solid var(--line);
-}
-.section:first-of-type { border-top: none; }
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}
+.gap-2{gap:8px;}.gap-3{gap:12px;}.gap-4{gap:16px;}.gap-6{gap:24px;}.gap-8{gap:32px;}
+.grid{display:grid;}.full{width:100%;}.relative{position:relative;}
 
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 48px;
-}
-.section-label .dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-}
-.section-label .tick {
-  flex: 1; height: 1px; background: var(--line);
-}
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:1px solid var(--line);background:rgba(10,10,11,0.85);backdrop-filter:blur(12px);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 var(--pad-x);}
+.nav-logo{font-family:var(--f-display);font-size:16px;font-weight:600;letter-spacing:-0.02em;cursor:pointer;}
+.nav-logo span{color:var(--accent);}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-link{font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-dim);cursor:pointer;transition:color 160ms;}
+.nav-link:hover,.nav-link.active{color:var(--fg);}
+.nav-cta{font-family:var(--f-mono);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;padding:8px 16px;border:1px solid var(--accent);color:var(--accent);background:transparent;cursor:pointer;transition:all 160ms;}
+.nav-cta:hover{background:var(--accent-faint);}
+@media(max-width:768px){.nav-links{display:none;}}
 
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 22px;
-  border: 1px solid var(--line-strong);
-  background: transparent;
-  color: var(--fg);
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 180ms ease;
-  position: relative;
-}
-.btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn .arrow { transition: transform 180ms ease; }
-.btn:hover .arrow { transform: translateX(4px); }
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--pad-x);padding-bottom:clamp(48px,6vw,96px);padding-top:100px;}
+.hero-eyebrow{display:flex;align-items:center;gap:16px;margin-bottom:32px;}
+.hero-h1{margin-bottom:40px;}
+.hero-sub{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:flex-end;}
+.hero-stats{display:flex;gap:48px;margin-top:48px;}
+.hero-stat-val{font-family:var(--f-display);font-size:clamp(28px,3.5vw,52px);font-weight:300;letter-spacing:-0.04em;color:var(--fg);}
+.hero-stat-lab{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-faint);margin-top:4px;}
+.hero-grid-line{position:absolute;background:var(--line);}
 
-.btn-primary {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.btn-primary:hover {
-  background: var(--accent-faint);
-}
+/* Ticker */
+.ticker-wrap{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 0;}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;}
+.ticker-track{display:flex;gap:40px;animation:marq 30s linear infinite;}
+.ticker-item{display:inline-flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg-faint);}
+.ticker-sep{color:var(--accent);margin:0 4px;}
 
-.btn-ghost {
-  border: none;
-  padding: 14px 0;
-  color: var(--fg-dim);
-}
-.btn-ghost:hover { color: var(--accent); border: none; }
+/* LOGO STRIP */
+.logo-strip{padding:clamp(32px,4vw,56px) 0;border-top:1px solid var(--line);}
+.logo-strip-label{text-align:center;margin-bottom:32px;}
+.logo-grid{display:flex;align-items:center;justify-content:center;gap:clamp(32px,4vw,64px);flex-wrap:wrap;}
+.logo-item{font-family:var(--f-display);font-size:clamp(13px,1.5vw,17px);font-weight:500;letter-spacing:-0.01em;color:var(--fg-faint);transition:color 200ms;}
+.logo-item:hover{color:var(--fg-dim);}
 
-/* Corner targeting marker */
-.target {
-  width: 10px; height: 10px;
-  border: 1px solid var(--accent);
-  position: relative;
-  display: inline-block;
-}
-.target::before, .target::after {
-  content: ""; position: absolute; background: var(--accent);
-}
-.target::before { left: 50%; top: -3px; bottom: -3px; width: 1px; transform: translateX(-50%); }
-.target::after { top: 50%; left: -3px; right: -3px; height: 1px; transform: translateY(-50%); }
+/* APPROACH */
+.approach-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);}
+@media(max-width:768px){.approach-grid{grid-template-columns:1fr;}}
+.approach-card{background:var(--bg);padding:clamp(32px,3vw,48px);position:relative;}
+.approach-num{font-family:var(--f-mono);font-size:11px;letter-spacing:0.1em;color:var(--accent);margin-bottom:24px;}
+.approach-title{font-family:var(--f-display);font-size:clamp(18px,1.8vw,24px);font-weight:400;letter-spacing:-0.02em;margin-bottom:12px;}
+.approach-desc{font-size:14px;color:var(--fg-dim);line-height:1.6;}
 
-/* Pill */
-.pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: 2px;
-  font-family: var(--f-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  color: var(--fg-dim);
-}
-.pill .pd { width: 5px; height: 5px; border-radius: 50%; }
-.pill-hot { border-color: rgba(186,139,142,0.5); color: var(--accent); }
-.pill-hot .pd { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
-.pill-warm { border-color: rgba(214,174,150,0.4); color: #d6ae96; }
-.pill-warm .pd { background: #d6ae96; }
-.pill-cold { border-color: rgba(150,170,190,0.3); color: #96aabe; }
-.pill-cold .pd { background: #96aabe; }
+/* HOW IT WORKS */
+.hiw-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+@media(max-width:768px){.hiw-steps{grid-template-columns:1fr;}}
+.hiw-step{background:var(--bg);padding:clamp(32px,3vw,48px);}
+.hiw-step-n{font-family:var(--f-mono);font-size:48px;font-weight:400;color:var(--fg-ghost);line-height:1;margin-bottom:24px;}
+.hiw-step-title{font-family:var(--f-display);font-size:clamp(18px,1.6vw,22px);font-weight:400;margin-bottom:12px;letter-spacing:-0.02em;}
+.hiw-step-desc{font-size:14px;color:var(--fg-dim);line-height:1.6;}
 
-/* Blueprint hairline divider */
-.hairline { height: 1px; background: var(--line); width: 100%; }
-.vrule { width: 1px; background: var(--line); align-self: stretch; }
+/* ICP */
+.icp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--line);}
+.icp-card{background:var(--bg);padding:32px;transition:background 180ms;}
+.icp-card:hover{background:var(--bg-2);}
+.icp-icon{width:36px;height:36px;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:16px;}
+.icp-title{font-family:var(--f-display);font-size:17px;font-weight:500;letter-spacing:-0.01em;margin-bottom:8px;}
+.icp-desc{font-size:13px;color:var(--fg-dim);line-height:1.55;}
 
-/* Scroll fade */
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
-}
-.rise { animation: rise 700ms cubic-bezier(.2,.7,.2,1) both; }
+/* WORKFLOW */
+.wf-line{display:grid;grid-template-columns:120px 1fr;gap:32px;padding:28px 0;border-bottom:1px solid var(--line);align-items:start;}
+.wf-line:last-child{border-bottom:none;}
+.wf-stage{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);padding-top:3px;}
+.wf-detail{font-size:14px;color:var(--fg-dim);line-height:1.6;}
+.wf-detail strong{color:var(--fg);font-weight:500;}
 
-/* Blinking dot */
-@keyframes blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.25; } }
-.blink { animation: blink 1.6s infinite; }
+/* METHOD */
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+@media(max-width:900px){.method-grid{grid-template-columns:1fr;gap:48px;}}
+.method-list{display:flex;flex-direction:column;gap:0;}
+.method-item{padding:20px 0;border-bottom:1px solid var(--line);display:flex;gap:16px;align-items:flex-start;}
+.method-item:first-child{border-top:1px solid var(--line);}
+.method-check{width:18px;height:18px;border:1px solid var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:10px;color:var(--accent);}
+.method-text{font-size:14px;color:var(--fg-dim);line-height:1.6;}
+.method-text strong{color:var(--fg);font-weight:500;}
 
-/* Marquee */
-@keyframes marq { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.marquee { display: flex; gap: 20px; white-space: nowrap; animation: marq 25s linear infinite; }
+/* WHY */
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
+@media(max-width:768px){.why-grid{grid-template-columns:1fr;}}
+.why-card{background:var(--bg);padding:clamp(28px,3vw,44px);}
+.why-val{font-family:var(--f-display);font-size:clamp(36px,4vw,64px);font-weight:300;letter-spacing:-0.04em;color:var(--fg);line-height:1;}
+.why-unit{font-family:var(--f-mono);font-size:12px;letter-spacing:0.1em;color:var(--accent);margin-left:4px;}
+.why-label{font-family:var(--f-mono);font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-faint);margin-top:8px;}
+.why-desc{font-size:13px;color:var(--fg-dim);margin-top:12px;line-height:1.55;}
 
-/* Table hover */
-.feed-row { transition: background 160ms ease; }
-.feed-row:hover { background: rgba(186,139,142,0.05); }
+/* FAQ */
+.faq-item{border-bottom:1px solid var(--line);}
+.faq-q{width:100%;background:none;border:none;color:var(--fg);font-family:var(--f-display);font-size:clamp(16px,1.5vw,20px);font-weight:400;letter-spacing:-0.02em;text-align:left;padding:24px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.faq-q:hover{color:var(--accent);}
+.faq-icon{font-family:var(--f-mono);font-size:18px;color:var(--accent);flex-shrink:0;transition:transform 200ms;}
+.faq-icon.open{transform:rotate(45deg);}
+.faq-a{font-size:14px;color:var(--fg-dim);line-height:1.7;padding-bottom:24px;max-width:72ch;}
 
-/* Tweaks default dark chrome override — panel sits nice on dark bg */
-.leadwise-tweaks {
-  background: #0e0e10 !important;
-  border: 1px solid var(--line-strong) !important;
-  color: var(--fg) !important;
-  font-family: var(--f-mono) !important;
-}
+/* LIVE PROSPECTS */
+.lp-table{width:100%;border-collapse:collapse;}
+.lp-th{font-family:var(--f-mono);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-faint);padding:10px 16px;border-bottom:1px solid var(--line);text-align:left;}
+.lp-td{font-size:13px;padding:12px 16px;border-bottom:1px solid var(--line);color:var(--fg-dim);vertical-align:middle;}
+.lp-td.name{color:var(--fg);font-weight:500;}
+.score-bar{height:3px;background:var(--fg-ghost);border-radius:2px;overflow:hidden;width:80px;}
+.score-fill{height:100%;background:var(--accent);border-radius:2px;}
 
-/* Hide scrollbars inside faux panels */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; }
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:11px;color:var(--fg-faint);border-radius:2px;cursor:pointer;transition:all 150ms;}
+.cal-day.has-slot{border:1px solid var(--line-strong);color:var(--fg-dim);}
+.cal-day.has-slot:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-faint);}
+.cal-day.selected{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.cal-day.today{outline:1px solid var(--fg-faint);outline-offset:2px;}
+.cal-day.empty{pointer-events:none;}
 
-/* Utility */
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; } .gap-6 { gap: 24px; } .gap-8 { gap: 32px; }
-.grid { display: grid; }
-.full { width: 100%; }
-.relative { position: relative; }
+/* OUTBOUND PANEL */
+.signal-row{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start;}
+.signal-row:last-child{border-bottom:none;}
+.signal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.signal-body{flex:1;min-width:0;}
+.signal-company{font-size:13px;color:var(--fg);font-weight:500;margin-bottom:2px;}
+.signal-detail{font-size:12px;color:var(--fg-dim);line-height:1.4;}
+.signal-time{font-family:var(--f-mono);font-size:10px;color:var(--fg-faint);flex-shrink:0;}
+
+/* STACK PAGE */
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line);}
+.stack-card{background:var(--bg);padding:36px;position:relative;}
+.stack-card-label{font-family:var(--f-mono);font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.stack-card-title{font-family:var(--f-display);font-size:clamp(18px,1.8vw,22px);font-weight:400;letter-spacing:-0.02em;margin-bottom:10px;}
+.stack-card-desc{font-size:13px;color:var(--fg-dim);line-height:1.6;}
+.stack-tag{display:inline-flex;padding:2px 7px;border:1px solid var(--line);font-family:var(--f-mono);font-size:9.5px;letter-spacing:0.08em;color:var(--fg-faint);margin-top:16px;margin-right:4px;}
+
+/* SIGNALS PAGE */
+.sig-source-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1px;background:var(--line);}
+.sig-source{background:var(--bg);padding:28px;transition:background 160ms;}
+.sig-source:hover{background:var(--bg-2);}
+.sig-source-name{font-family:var(--f-display);font-size:16px;font-weight:500;letter-spacing:-0.01em;margin-bottom:6px;}
+.sig-source-desc{font-size:12px;color:var(--fg-dim);line-height:1.55;}
+.sig-type-badge{display:inline-flex;padding:2px 7px;border-radius:2px;font-family:var(--f-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:12px;}
+.sig-type-intent{border:1px solid rgba(186,139,142,0.4);color:var(--accent);}
+.sig-type-firmographic{border:1px solid rgba(150,170,190,0.3);color:#96aabe;}
+.sig-type-behavioral{border:1px solid rgba(214,174,150,0.4);color:#d6ae96;}
+.sig-type-technographic{border:1px solid rgba(140,186,164,0.4);color:#8ebaa4;}
+
+/* INTEL PAGE */
+.intel-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-bottom:1px;}
+@media(max-width:768px){.intel-stat-row{grid-template-columns:repeat(2,1fr);}}
+.intel-stat{background:var(--bg);padding:clamp(20px,2vw,32px);}
+
+/* ABOUT */
+.about-vals{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1px;background:var(--line);}
+.about-val{background:var(--bg);padding:32px;}
+.about-val-title{font-family:var(--f-display);font-size:18px;font-weight:500;letter-spacing:-0.01em;margin-bottom:8px;}
+.about-val-desc{font-size:13px;color:var(--fg-dim);line-height:1.6;}
+
+/* CONTACT */
+.contact-form{display:flex;flex-direction:column;gap:20px;max-width:520px;}
+.form-field{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-family:var(--f-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-faint);}
+.form-input{background:transparent;border:1px solid var(--line-strong);color:var(--fg);font-family:var(--f-body);font-size:14px;padding:12px 14px;outline:none;transition:border-color 160ms;width:100%;}
+.form-input:focus{border-color:var(--accent);}
+.form-input::placeholder{color:var(--fg-ghost);}
+textarea.form-input{resize:vertical;min-height:100px;}
+select.form-input{appearance:none;cursor:pointer;}
+
+/* FOOTER */
+.footer{padding:clamp(48px,6vw,96px) 0 clamp(32px,3vw,48px);border-top:1px solid var(--line);}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;}
+@media(max-width:900px){.footer-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.footer-grid{grid-template-columns:1fr;}}
+.footer-brand{font-family:var(--f-display);font-size:22px;font-weight:600;letter-spacing:-0.03em;margin-bottom:12px;}
+.footer-brand span{color:var(--accent);}
+.footer-tagline{font-size:13px;color:var(--fg-dim);max-width:28ch;line-height:1.55;}
+.footer-col-title{font-family:var(--f-mono);font-size:9.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--fg-faint);margin-bottom:16px;}
+.footer-link{display:block;font-size:13px;color:var(--fg-dim);margin-bottom:10px;cursor:pointer;transition:color 160ms;}
+.footer-link:hover{color:var(--fg);}
+.footer-bottom{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-copy{font-family:var(--f-mono);font-size:10px;letter-spacing:0.1em;color:var(--fg-faint);}
+
+/* TWEAKS PANEL */
+.tweaks-panel{position:fixed;bottom:20px;right:20px;z-index:1000;background:#0e0e10;border:1px solid var(--line-strong);padding:16px;width:220px;font-family:var(--f-mono);}
+.tweaks-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;cursor:pointer;}
+.tweaks-title{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--fg-dim);}
+.tweaks-toggle{font-size:14px;color:var(--fg-faint);background:none;border:none;cursor:pointer;line-height:1;}
+.tweak-section{font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--fg-faint);margin:12px 0 6px;}
+.tweak-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.tweak-label{font-size:9.5px;letter-spacing:0.1em;color:var(--fg-dim);}
+.tweak-slider{-webkit-appearance:none;width:100%;height:2px;background:var(--line-strong);outline:none;margin-top:4px;}
+.tweak-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;background:var(--accent);cursor:pointer;border-radius:0;}
+.accent-swatches{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;}
+.accent-swatch{width:20px;height:20px;border:1px solid transparent;cursor:pointer;transition:border-color 120ms;}
+.accent-swatch:hover,.accent-swatch.active{border-color:white;}
+
+/* TERMINAL */
+.terminal{background:#050507;border:1px solid var(--line);padding:20px;font-family:var(--f-mono);font-size:12px;line-height:1.7;}
+.terminal-line{color:var(--fg-dim);}
+.terminal-line .prompt{color:var(--accent);}
+.terminal-line .cmd{color:var(--fg);}
+.terminal-line .out{color:#8ebaa4;}
+.terminal-line .dim{color:var(--fg-faint);}
+.terminal-cursor{display:inline-block;width:8px;height:13px;background:var(--accent);vertical-align:text-bottom;animation:blink 1s infinite;}
+
+/* PIPELINE VIZ */
+.pipeline-node{padding:12px 16px;border:1px solid var(--line);background:var(--bg-2);position:relative;}
+.pipeline-node.active{border-color:var(--accent);}
+.pipeline-node-label{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-faint);}
+.pipeline-node-val{font-family:var(--f-display);font-size:22px;font-weight:300;color:var(--fg);letter-spacing:-0.03em;}
+.pipeline-arrow{display:flex;align-items:center;color:var(--accent);font-size:16px;padding:0 8px;}
+
+/* STATS SECTION */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+.stat-cell{background:var(--bg);padding:clamp(24px,3vw,40px);}
+.stat-val{font-family:var(--f-display);font-size:clamp(40px,5vw,72px);font-weight:300;letter-spacing:-0.04em;color:var(--fg);line-height:1;}
+.stat-unit{color:var(--accent);}
+.stat-label{font-family:var(--f-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-faint);margin-top:8px;}
+
+/* Scroll in animation */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity 600ms ease,transform 600ms ease;}
+.fade-in.visible{opacity:1;transform:none;}
+
+/* LEGAL */
+.legal-body{max-width:720px;margin:0 auto;padding-top:120px;padding-bottom:96px;}
+.legal-body h2{font-size:clamp(28px,3vw,42px);margin-bottom:16px;}
+.legal-body h3{font-size:17px;font-weight:500;margin:32px 0 10px;color:var(--fg);}
+.legal-body p{font-size:14px;color:var(--fg-dim);line-height:1.75;margin-bottom:14px;}
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
 </head>
 <body>
 
-<!-- Backdrop texture layers -->
 <div class="tex-dots"></div>
 <div class="tex-scan"></div>
 <div class="tex-grain" id="texGrain"></div>
@@ -295,65 +344,1196 @@ p { margin: 0; color: var(--fg-dim); }
 
 <script>
 (function(){
-  var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>";
-  var url = "url(\"data:image/svg+xml;utf8," + encodeURIComponent(svg) + "\")";
-  document.getElementById("texGrain").style.backgroundImage = url;
+  var svg="<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>";
+  var url="url(\"data:image/svg+xml;utf8,"+encodeURIComponent(svg)+"\")";
+  document.getElementById("texGrain").style.backgroundImage=url;
 })();
 </script>
 
 <div id="app" class="app-root"></div>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel" src="components/utilities.jsx"></script>
-<script type="text/babel" src="components/nav.jsx"></script>
-<script type="text/babel" src="components/hero.jsx"></script>
-<script type="text/babel" src="components/home-sections.jsx"></script>
-<script type="text/babel" src="components/about-contact.jsx"></script>
-<script type="text/babel" src="components/stack-page.jsx"></script>
-<script type="text/babel" src="components/stack-roadmap.jsx"></script>
-<script type="text/babel" src="components/intel-hero-graphic.jsx"></script>
-<script type="text/babel" src="components/tam-mapping.jsx"></script>
-<script type="text/babel" src="components/sub-pages.jsx"></script>
-<script type="text/babel" src="components/outbound/LivePipelinePanel.jsx"></script>
-<script type="text/babel" src="components/outbound/EngagementTimeline.jsx"></script>
-<script type="text/babel" src="components/outbound/SignalEngineTerminal.jsx"></script>
-<script type="text/babel" src="components/outbound/ContextStudioOutbound.jsx"></script>
-<script type="text/babel" src="components/outbound/SignalToSendPipeline.jsx"></script>
-<script type="text/babel" src="components/outbound/DealStream.jsx"></script>
-<script type="text/babel" src="components/outbound/OpenSlotsTerminal.jsx"></script>
-<script type="text/babel" src="components/outbound-page.jsx"></script>
-<script type="text/babel" src="components/legal-pages.jsx"></script>
-<script type="text/babel" src="components/live-prospects.jsx"></script>
-<script type="text/babel" src="components/extra.jsx"></script>
-<script type="text/babel" src="components/qualified-calendar.jsx"></script>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
 
 <script type="text/babel" data-presets="react">
-const { useState: useStateApp, useEffect: useEffectApp } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
-  "accent": "#ba8b8e",
-  "grain": 0.11,
-  "scanline": 0.045,
-  "dotgrid": 0.135
-}/*EDITMODE-END*/;
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
 
+function Frame({ children, style, className="" }) {
+  return (
+    <div className={"frame " + className} style={style}>
+      <div className="crop-tl"/><div className="crop-tr"/>
+      <div className="crop-bl"/><div className="crop-br"/>
+      {children}
+    </div>
+  );
+}
+
+function SectionLabel({ text, index }) {
+  return (
+    <div className="section-label">
+      <div className="dot"/>
+      <span className="label">{index && <span style={{color:"var(--accent)",marginRight:8}}>{index}</span>}{text}</span>
+      <div className="tick"/>
+    </div>
+  );
+}
+
+function Btn({ children, primary, ghost, onClick, style }) {
+  return (
+    <button className={`btn${primary?" btn-primary":""}${ghost?" btn-ghost":""}`} onClick={onClick} style={style}>
+      {children}
+      {!ghost && <span className="arrow">→</span>}
+    </button>
+  );
+}
+
+function Pill({ label, type="cold" }) {
+  return (
+    <span className={`pill pill-${type}`}>
+      <span className="pd"/>
+      {label}
+    </span>
+  );
+}
+
+function useFadeIn() {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { el.classList.add("visible"); obs.disconnect(); }
+    }, { threshold: 0.1 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return ref;
+}
+
+// ─── TWEAKS ──────────────────────────────────────────────────────────────────
+
+const TWEAK_DEFAULTS = { accent:"#ba8b8e", grain:0.045, scanline:0.035, dotgrid:0.06 };
 const ACCENT_PRESETS = [
-  { label: "Blush", v: "#ba8b8e" },
-  { label: "Sand",  v: "#c9b28a" },
-  { label: "Mint",  v: "#8ebaa4" },
-  { label: "Sky",   v: "#8ea6ba" },
-  { label: "Amber", v: "#c9a26a" },
+  { label:"Blush", v:"#ba8b8e" },
+  { label:"Sand",  v:"#c9b28a" },
+  { label:"Mint",  v:"#8ebaa4" },
+  { label:"Sky",   v:"#8ea6ba" },
+  { label:"Amber", v:"#c9a26a" },
 ];
 
-function App() {
-  const [page, setPage] = useStateApp("home");
-  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+function useTweaks(defaults) {
+  const [t, setT] = useState(defaults);
+  const set = (k,v) => setT(p => ({...p,[k]:v}));
+  return [t, set];
+}
 
-  useEffectApp(() => {
+function TweaksPanel({ t, set }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="tweaks-panel">
+      <div className="tweaks-header" onClick={() => setOpen(p=>!p)}>
+        <span className="tweaks-title">⚙ Tweaks</span>
+        <button className="tweaks-toggle">{open?"▲":"▼"}</button>
+      </div>
+      {open && (
+        <>
+          <div className="tweak-section">Accent</div>
+          <div className="accent-swatches">
+            {ACCENT_PRESETS.map(p => (
+              <div key={p.v} className={"accent-swatch" + (t.accent===p.v?" active":"")}
+                style={{background:p.v}} onClick={() => set("accent",p.v)} title={p.label}/>
+            ))}
+          </div>
+          <div className="form-field" style={{marginBottom:8}}>
+            <input type="color" value={t.accent} onChange={e=>set("accent",e.target.value)}
+              style={{width:"100%",height:24,border:"1px solid var(--line-strong)",background:"none",cursor:"pointer"}}/>
+          </div>
+          <div className="tweak-section">Texture</div>
+          {[["Grain","grain",0,0.15,0.005],["Scanlines","scanline",0,0.12,0.005],["Dot grid","dotgrid",0,0.18,0.005]].map(([l,k,mn,mx,st]) => (
+            <div key={k}>
+              <div style={{display:"flex",justifyContent:"space-between"}}>
+                <span className="tweak-label">{l}</span>
+                <span className="tweak-label">{t[k].toFixed(3)}</span>
+              </div>
+              <input type="range" className="tweak-slider" min={mn} max={mx} step={st}
+                value={t[k]} onChange={e=>set(k,parseFloat(e.target.value))}/>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─── NAV ─────────────────────────────────────────────────────────────────────
+
+const NAV_LINKS = [
+  {id:"home",label:"Home"},
+  {id:"signals",label:"Signals"},
+  {id:"stack",label:"Stack"},
+  {id:"outbound",label:"Outbound"},
+  {id:"intel",label:"Intel"},
+  {id:"about",label:"About"},
+];
+
+function Nav({ page, onNav }) {
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <div className="nav-logo" onClick={() => onNav("home")}>
+          Leadwise<span>.</span>
+        </div>
+        <div className="nav-links">
+          {NAV_LINKS.map(l => (
+            <span key={l.id} className={"nav-link"+(page===l.id?" active":"")} onClick={() => onNav(l.id)}>
+              {l.label}
+            </span>
+          ))}
+        </div>
+        <button className="nav-cta" onClick={() => onNav("contact")}>Request Access →</button>
+      </div>
+    </nav>
+  );
+}
+
+// ─── TICKER ──────────────────────────────────────────────────────────────────
+
+const TICKER_ITEMS = [
+  "Signal-to-Send in < 4h","Intent Detection","ICP Scoring","Funding Round Triggers",
+  "Job Change Monitoring","Tech Stack Fingerprinting","Outbound Sequencing",
+  "Verified Contacts","Domain Authority Scoring","Pipeline Intelligence",
+];
+
+function Ticker() {
+  const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  return (
+    <div className="ticker-wrap">
+      <div className="ticker-inner">
+        <div className="ticker-track">
+          {doubled.map((item, i) => (
+            <span key={i} className="ticker-item">
+              <span className="ticker-sep">◆</span> {item}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── HERO ─────────────────────────────────────────────────────────────────────
+
+function Hero({ onNav }) {
+  return (
+    <section className="hero">
+      {/* faint grid lines */}
+      {[20,40,60,80].map(p => (
+        <div key={p} style={{
+          position:"absolute",left:`${p}%`,top:0,bottom:0,
+          width:1,background:"var(--line)",pointerEvents:"none"
+        }}/>
+      ))}
+      <div className="container" style={{position:"relative"}}>
+        <div className="hero-eyebrow rise">
+          <div className="target"/>
+          <span className="label-accent">Signal-driven outbound</span>
+          <span className="label" style={{marginLeft:8}}>v2.4.1</span>
+          <span className="blink" style={{color:"var(--accent)",marginLeft:4}}>●</span>
+        </div>
+        <h1 className="hero-h1 rise" style={{animationDelay:"60ms"}}>
+          Pipeline,<br/>
+          <span style={{color:"var(--accent)"}}>engineered</span><br/>
+          from signal.
+        </h1>
+        <div className="hero-sub">
+          <div>
+            <p className="lead rise" style={{animationDelay:"120ms",marginBottom:32}}>
+              Leadwise turns fragmented buying signals into fully-sequenced outbound — 
+              so your team shows up before the competition knows to look.
+            </p>
+            <div className="flex gap-4 rise" style={{animationDelay:"180ms",flexWrap:"wrap"}}>
+              <Btn primary onClick={() => onNav("contact")}>Request Access</Btn>
+              <Btn ghost onClick={() => onNav("stack")}>See the Stack</Btn>
+            </div>
+          </div>
+          <div className="rise" style={{animationDelay:"240ms"}}>
+            <div className="hero-stats">
+              {[["3.2×","Pipeline velocity"],["<4h","Signal-to-send"],["89%","ICP match rate"]].map(([v,l]) => (
+                <div key={l}>
+                  <div className="hero-stat-val">{v}</div>
+                  <div className="hero-stat-lab">{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── LOGO STRIP ──────────────────────────────────────────────────────────────
+
+const LOGOS = ["Vercel","Linear","Rippling","Brex","Hex","Retool","Loom","Figma","Notion","Miro","Airtable","Lattice"];
+
+function LogoStrip() {
+  return (
+    <div className="logo-strip">
+      <p className="label" style={{textAlign:"center",marginBottom:24}}>Trusted by fast-scaling teams at</p>
+      <div className="logo-grid">
+        {LOGOS.slice(0,8).map(l => (
+          <span key={l} className="logo-item">{l}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── APPROACH ────────────────────────────────────────────────────────────────
+
+const APPROACH_CARDS = [
+  { n:"01", title:"Signal ingestion", desc:"We monitor 40+ intent and firmographic data streams continuously — job postings, funding rounds, tech stack changes, web behaviour, and more." },
+  { n:"02", title:"ICP matching", desc:"Every signal is cross-referenced against your Ideal Customer Profile. Only accounts that fit, and are showing buying behaviour, make it through." },
+  { n:"03", title:"Context assembly", desc:"Our models synthesise matched signals into rich company and contact context — the full story a rep needs, before they write a word." },
+  { n:"04", title:"Outbound sequencing", desc:"Personalised, signal-referenced messages go into your chosen sending platform. Your reps send; we make every send count." },
+];
+
+function Approach() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="The approach" index="01"/>
+        <div ref={ref} className="approach-grid fade-in">
+          {APPROACH_CARDS.map(c => (
+            <div key={c.n} className="approach-card">
+              <div className="approach-num">{c.n}</div>
+              <div className="approach-title">{c.title}</div>
+              <p className="approach-desc">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── HOW IT WORKS ────────────────────────────────────────────────────────────
+
+const HIW_STEPS = [
+  { n:"1", title:"Connect your stack", desc:"Link your CRM, sending platform, and enrichment sources. Leadwise reads your existing ICP from closed-won data — no manual setup." },
+  { n:"2", title:"Signals fire", desc:"As accounts hit trigger thresholds — funding, headcount growth, tech adoption — Leadwise surfaces them and scores urgency in real time." },
+  { n:"3", title:"Sequences land", desc:"Draft messages, enriched contact data, and send instructions flow into your outbox. Reps review, adjust tone, and send — all in < 10 minutes per account." },
+];
+
+function HowItWorks() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="How it works" index="02"/>
+        <div ref={ref} className="hiw-steps fade-in">
+          {HIW_STEPS.map(s => (
+            <div key={s.n} className="hiw-step">
+              <div className="hiw-step-n">{s.n}</div>
+              <div className="hiw-step-title">{s.title}</div>
+              <p className="hiw-step-desc">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── QUALIFIED CALENDAR ──────────────────────────────────────────────────────
+
+const DAYS_OF_WEEK = ["M","T","W","T","F","S","S"];
+const SLOTS = [3,5,8,10,12,15,17,19,22,24,26,28];
+const TIMES = ["09:00","09:30","10:00","10:30","11:00","14:00","14:30","15:00"];
+
+function QualifiedCalendar() {
+  const [selectedDay, setSelectedDay] = useState(15);
+  const [selectedTime, setSelectedTime] = useState("10:00");
+  const [submitted, setSubmitted] = useState(false);
+  const ref = useFadeIn();
+
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="Book a qualified intro" index="03"/>
+        <div ref={ref} className="fade-in" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1px",background:"var(--line)"}}>
+          <div style={{background:"var(--bg)",padding:"clamp(32px,4vw,56px)"}}>
+            <p className="label-accent" style={{marginBottom:8}}>May 2026</p>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:16}}>
+              {DAYS_OF_WEEK.map((d,i) => (
+                <div key={i} style={{textAlign:"center",fontFamily:"var(--f-mono)",fontSize:9,letterSpacing:"0.1em",color:"var(--fg-faint)",padding:"4px 0"}}>{d}</div>
+              ))}
+            </div>
+            <div className="cal-grid">
+              {[...Array(35)].map((_,i) => {
+                const day = i - 3; // May 2026 starts on Friday
+                if (day < 1 || day > 31) return <div key={i} className="cal-day empty"/>;
+                const hasSlot = SLOTS.includes(day);
+                const isSelected = day === selectedDay;
+                return (
+                  <div key={i}
+                    className={"cal-day"+(hasSlot?" has-slot":"")+(isSelected?" selected":"")+(day===7?" today":"")}
+                    onClick={() => hasSlot && setSelectedDay(day)}>
+                    {day}
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{marginTop:24}}>
+              <p className="hint" style={{marginBottom:12}}>Available times — Day {selectedDay}</p>
+              <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                {TIMES.map(t => (
+                  <button key={t} onClick={() => setSelectedTime(t)}
+                    style={{
+                      fontFamily:"var(--f-mono)",fontSize:11,letterSpacing:"0.1em",
+                      padding:"6px 12px",border:"1px solid",cursor:"pointer",background:"transparent",
+                      borderColor: t===selectedTime ? "var(--accent)":"var(--line-strong)",
+                      color: t===selectedTime ? "var(--accent)":"var(--fg-dim)",
+                      transition:"all 150ms"
+                    }}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div style={{background:"var(--bg)",padding:"clamp(32px,4vw,56px)"}}>
+            <h3 style={{marginBottom:12}}>30-min pipeline review</h3>
+            <p style={{fontSize:14,color:"var(--fg-dim)",marginBottom:32,lineHeight:1.65}}>
+              We'll audit your current outbound motion, identify the highest-signal accounts in your market right now, and show you exactly how Leadwise would accelerate your pipeline.
+            </p>
+            {submitted ? (
+              <div style={{padding:24,border:"1px solid var(--accent)",background:"var(--accent-faint)"}}>
+                <p className="label-accent" style={{marginBottom:8}}>✓ Confirmed</p>
+                <p style={{fontSize:14,color:"var(--fg-dim)"}}>May {selectedDay} at {selectedTime} — you'll receive a calendar invite shortly.</p>
+              </div>
+            ) : (
+              <div className="contact-form">
+                <div className="form-field">
+                  <label className="form-label">Full name</label>
+                  <input className="form-input" type="text" placeholder="Alex Chen"/>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Work email</label>
+                  <input className="form-input" type="email" placeholder="alex@company.com"/>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Company</label>
+                  <input className="form-input" type="text" placeholder="Acme Corp"/>
+                </div>
+                <div style={{padding:"12px 16px",border:"1px solid var(--line-strong)",background:"var(--bg-2)"}}>
+                  <p className="hint">Selected</p>
+                  <p style={{fontFamily:"var(--f-mono)",fontSize:13,color:"var(--fg)",marginTop:4}}>
+                    May {selectedDay}, 2026 · {selectedTime}
+                  </p>
+                </div>
+                <Btn primary onClick={() => setSubmitted(true)}>Confirm booking</Btn>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── ICP SECTION ─────────────────────────────────────────────────────────────
+
+const ICP_CARDS = [
+  { icon:"⚡", title:"B2B SaaS", desc:"Series A–D companies with 20–500 employees scaling outbound sales motions." },
+  { icon:"🏦", title:"Fintech & Payments", desc:"Fast-moving companies where timing — around funding, regulation, or M&A — is everything." },
+  { icon:"🔧", title:"Dev Tools & Infra", desc:"Technical products where firmographic signals like stack changes drive purchase decisions." },
+  { icon:"🏥", title:"HR & Workforce Tech", desc:"Platforms triggered by headcount growth, job postings, and org restructures." },
+  { icon:"📦", title:"Vertical SaaS", desc:"Niche-market companies that need to be first when a trigger event fires." },
+  { icon:"🚀", title:"PLG with Sales Assist", desc:"Product-led teams adding enterprise sales who need signal-led outbound, not spray and pray." },
+];
+
+function ICPSection() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="Who it's built for" index="04"/>
+        <div style={{marginBottom:48}}>
+          <h2 style={{marginBottom:16}}>Your ICP,<br/>finally <em style={{fontStyle:"italic",fontWeight:300}}>reachable.</em></h2>
+          <p className="lead" style={{maxWidth:"52ch"}}>Leadwise is purpose-built for B2B revenue teams who compete on timing and personalisation.</p>
+        </div>
+        <div ref={ref} className="icp-grid fade-in">
+          {ICP_CARDS.map(c => (
+            <div key={c.title} className="icp-card">
+              <div className="icp-icon">{c.icon}</div>
+              <div className="icp-title">{c.title}</div>
+              <p className="icp-desc">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── WORKFLOW ────────────────────────────────────────────────────────────────
+
+const WF_STEPS = [
+  { stage:"Monitor", detail:<><strong>Signal ingestion</strong> — 40+ sources scanned continuously. Funding alerts, headcount deltas, tech adoption events, G2 category searches, web intent spikes.</> },
+  { stage:"Score", detail:<><strong>Account prioritisation</strong> — signals are weighted by recency, strength, and ICP fit. Accounts cross your threshold only when multiple signals converge.</> },
+  { stage:"Enrich", detail:<><strong>Contact & context assembly</strong> — buying committee mapped, verified emails and mobile numbers sourced, company news summarised, tailored messaging brief generated.</> },
+  { stage:"Sequence", detail:<><strong>Multi-channel outbound built</strong> — email, LinkedIn, and call scripts drafted with signal-specific personalisation hooks. Ready for rep review in < 4 hours.</> },
+  { stage:"Learn", detail:<><strong>Outcome feedback loop</strong> — reply rates, meeting rates, and won deals flow back to re-weight signal importance and sharpen ICP matching over time.</> },
+];
+
+function Workflow() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="The workflow" index="05"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"80px",alignItems:"start"}}>
+          <div>
+            <h2 style={{marginBottom:24}}>From signal<br/>to pipeline.</h2>
+            <p className="lead" style={{maxWidth:"42ch"}}>Every Leadwise account goes through five deterministic stages — no black boxes.</p>
+          </div>
+          <div ref={ref} className="fade-in">
+            {WF_STEPS.map((s,i) => (
+              <div key={i} className="wf-line">
+                <div className="wf-stage">{s.stage}</div>
+                <p className="wf-detail">{s.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── METHOD ──────────────────────────────────────────────────────────────────
+
+const METHOD_ITEMS = [
+  { text: <><strong>Signal-referenced personalisation</strong> — every message cites a real, recent event. Not "saw your company is growing fast" but "noticed you added 14 AE roles in Q1."</> },
+  { text: <><strong>Multi-signal convergence</strong> — we only trigger outbound when ≥3 independent signals align. Fewer accounts, higher conversion.</> },
+  { text: <><strong>Buying committee coverage</strong> — we map champion, economic buyer, and blocker contacts for every account, with verified contact data for each.</> },
+  { text: <><strong>Platform agnostic</strong> — sequences flow into Outreach, Salesloft, Apollo, HubSpot, or wherever your team already lives.</> },
+  { text: <><strong>Rep-in-the-loop</strong> — Leadwise drafts; humans send. You keep control of the relationship while we do the research.</> },
+];
+
+function TerminalDemo() {
+  const lines = [
+    { prompt:"$", cmd:" leadwise run --account acme-corp" },
+    { out:"↳ Fetching signals for Acme Corp..." },
+    { out:"  [✓] Funding: Series B $28M — 3 days ago" },
+    { out:"  [✓] Headcount: +34 in Engineering this quarter" },
+    { out:"  [✓] Tech: Migrated from Intercom → Zendesk" },
+    { out:"  [✓] Intent: 4 G2 searches · enterprise support" },
+    { dim:"" },
+    { out:"↳ ICP score: 94/100 · Urgency: HIGH" },
+    { out:"↳ Buying committee: 3 contacts identified" },
+    { out:"↳ Sequence: 3-step email + LinkedIn draft ready" },
+    { dim:"↳ Time elapsed: 3m 42s" },
+  ];
+  return (
+    <div className="terminal">
+      {lines.map((l,i) => (
+        <div key={i} className="terminal-line" style={{animationDelay:`${i*80}ms`}}>
+          {l.prompt && <span className="prompt">{l.prompt}</span>}
+          {l.cmd && <span className="cmd">{l.cmd}</span>}
+          {l.out && <span className="out">{l.out}</span>}
+          {l.dim && <span className="dim">{l.dim}</span>}
+        </div>
+      ))}
+      <div className="terminal-line">
+        <span className="prompt">$</span>{" "}
+        <span className="terminal-cursor"/>
+      </div>
+    </div>
+  );
+}
+
+function Method({ onNav }) {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="The method" index="06"/>
+        <div className="method-grid">
+          <div>
+            <h2 style={{marginBottom:24}}>Built different.<br/>On purpose.</h2>
+            <p className="lead" style={{maxWidth:"44ch",marginBottom:40}}>
+              Most outbound tools optimise for volume. Leadwise optimises for precision — because the best time to reach a buyer is exactly once, at exactly the right moment.
+            </p>
+            <Btn primary onClick={() => onNav("stack")}>Explore the stack</Btn>
+          </div>
+          <div ref={ref} className="fade-in">
+            <div className="method-list">
+              {METHOD_ITEMS.map((m,i) => (
+                <div key={i} className="method-item">
+                  <div className="method-check">✓</div>
+                  <p className="method-text">{m.text}</p>
+                </div>
+              ))}
+            </div>
+            <div style={{marginTop:32}}>
+              <TerminalDemo/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── WHY LEADWISE ─────────────────────────────────────────────────────────────
+
+const WHY_DATA = [
+  { val:"3.2", unit:"×", label:"Pipeline velocity", desc:"Accounts worked with Leadwise close faster than cold-outbound benchmarks." },
+  { val:"89", unit:"%", label:"ICP match rate", desc:"Of accounts surfaced by Leadwise meet strict ICP criteria — vs 34% industry average." },
+  { val:"<4", unit:"h", label:"Signal-to-send", desc:"From trigger event firing to a personalised sequence in your rep's outbox." },
+  { val:"6.1", unit:"×", label:"Reply rate vs. cold", desc:"Signal-referenced outbound dramatically outperforms generic volume prospecting." },
+  { val:"40", unit:"+", label:"Signal sources", desc:"Funding, hiring, tech stack, intent, web behaviour, news, and more — monitored 24/7." },
+  { val:"94", unit:"%", label:"Contact verify rate", desc:"Emails and direct dials verified before they ever reach a rep's sequence." },
+];
+
+function WhyLeadwise() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="By the numbers" index="07"/>
+        <div ref={ref} className="why-grid fade-in">
+          {WHY_DATA.map(d => (
+            <div key={d.label} className="why-card">
+              <div>
+                <span className="why-val">{d.val}</span>
+                <span className="why-unit">{d.unit}</span>
+              </div>
+              <div className="why-label">{d.label}</div>
+              <p className="why-desc">{d.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── STATS ───────────────────────────────────────────────────────────────────
+
+function Stats({ onNav }) {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="Scale" index="08"/>
+        <div ref={ref} className="stats-row fade-in">
+          {[
+            ["2.4M+","Accounts monitored"],
+            ["140M+","Contacts in graph"],
+            ["40+","Signal sources"],
+            ["< 4h","Signal-to-send SLA"],
+          ].map(([v,l]) => (
+            <div key={l} className="stat-cell">
+              <div className="stat-val"><span style={{color:"var(--accent)"}}>{v}</span></div>
+              <div className="stat-label">{l}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:48,display:"flex",gap:24,flexWrap:"wrap"}}>
+          <Btn primary onClick={() => onNav("contact")}>Get started →</Btn>
+          <Btn ghost onClick={() => onNav("intel")}>View intel layer</Btn>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── LIVE PROSPECTS ──────────────────────────────────────────────────────────
+
+const PROSPECTS = [
+  { company:"Watershed", title:"VP of Sales", signal:"Series C · $50M", score:96, status:"hot" },
+  { company:"Deel", title:"Head of GTM", signal:"Hiring 22 AEs", score:91, status:"hot" },
+  { company:"Rippling", title:"Director, RevOps", signal:"Stack: added Outreach", score:87, status:"warm" },
+  { company:"Lattice", title:"Chief Revenue Officer", signal:"New CRO hired", score:85, status:"warm" },
+  { company:"Linear", title:"Sales Lead", signal:"G2 intent: 8 searches", score:78, status:"warm" },
+  { company:"Hex", title:"Head of Partnerships", signal:"Funding news coverage", score:64, status:"cold" },
+  { company:"Loom", title:"Enterprise AE", signal:"Product update announcement", score:58, status:"cold" },
+];
+
+function LiveProspectView() {
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="Live pipeline feed" index="09"/>
+        <div style={{marginBottom:24,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          <p className="lead" style={{fontSize:15,maxWidth:"48ch"}}>A live view of accounts currently being surfaced and scored — redacted for demo purposes.</p>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span className="blink" style={{color:"var(--accent)"}}>●</span>
+            <span className="label">Live · {PROSPECTS.length} active</span>
+          </div>
+        </div>
+        <Frame>
+          <div ref={ref} className="fade-in" style={{overflowX:"auto"}}>
+            <table className="lp-table">
+              <thead>
+                <tr>
+                  {["Account","Contact","Signal","Score","Status"].map(h => (
+                    <th key={h} className="lp-th">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {PROSPECTS.map((p,i) => (
+                  <tr key={i} className="feed-row">
+                    <td className="lp-td name">{p.company}</td>
+                    <td className="lp-td">{p.title}</td>
+                    <td className="lp-td">{p.signal}</td>
+                    <td className="lp-td">
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div className="score-bar"><div className="score-fill" style={{width:`${p.score}%`}}/></div>
+                        <span style={{fontFamily:"var(--f-mono)",fontSize:11}}>{p.score}</span>
+                      </div>
+                    </td>
+                    <td className="lp-td"><Pill label={p.status} type={p.status}/></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Frame>
+      </div>
+    </section>
+  );
+}
+
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+
+const FAQS = [
+  { q:"How is Leadwise different from ZoomInfo or Apollo?", a:"ZoomInfo and Apollo are data providers — they give you lists. Leadwise is a signal intelligence layer: we tell you which accounts are in-market right now, why, and give you the personalised outbound to act on it immediately. We often work alongside those tools, not instead of them." },
+  { q:"What sending platforms do you integrate with?", a:"Outreach, Salesloft, Apollo, HubSpot Sequences, Lemlist, Instantly, and Smartlead — with more on the roadmap. If you use something else, our export API can push sequences anywhere." },
+  { q:"Do reps still need to write emails?", a:"No. Leadwise drafts the full sequence — email, LinkedIn, and call scripts — referencing the specific signals that triggered the account. Reps review, optionally adjust tone, and send. Average time-to-send is under 10 minutes per account." },
+  { q:"How accurate is your contact data?", a:"We run a 6-layer verification stack across email (SMTP + AI), mobile (carrier verification), and LinkedIn presence. Verified delivery rates average 94% — compared to 60–70% for most list providers." },
+  { q:"Can we bring our own ICP definition?", a:"Yes. You can define ICP criteria directly in the platform — firmographics, technographics, and behavioural attributes — or we can infer it from your closed-won CRM data automatically." },
+  { q:"What's the onboarding process?", a:"CRM connection on day 1. ICP calibration and first signal feeds within 48 hours. First sequences ready for rep review by end of week one. Full ramp typically takes 2 weeks." },
+];
+
+function FAQ() {
+  const [open, setOpen] = useState(null);
+  const ref = useFadeIn();
+  return (
+    <section className="section">
+      <div className="container">
+        <SectionLabel text="Questions" index="10"/>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"80px",alignItems:"start"}}>
+          <div>
+            <h2>Common<br/>questions.</h2>
+          </div>
+          <div ref={ref} className="fade-in">
+            {FAQS.map((f,i) => (
+              <div key={i} className="faq-item">
+                <button className="faq-q" onClick={() => setOpen(open===i?null:i)}>
+                  {f.q}
+                  <span className={"faq-icon"+(open===i?" open":"")}>+</span>
+                </button>
+                {open===i && <p className="faq-a">{f.a}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── FOOTER ──────────────────────────────────────────────────────────────────
+
+function Footer({ onNav }) {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <div className="footer-grid">
+          <div>
+            <div className="footer-brand">Leadwise<span>.</span></div>
+            <p className="footer-tagline">Pipeline, engineered from signal. For B2B revenue teams who compete on timing.</p>
+          </div>
+          <div>
+            <div className="footer-col-title">Product</div>
+            {[["signals","Signals"],["stack","Stack"],["outbound","Outbound"],["intel","Intel"]].map(([id,l]) => (
+              <span key={id} className="footer-link" onClick={() => onNav(id)}>{l}</span>
+            ))}
+          </div>
+          <div>
+            <div className="footer-col-title">Company</div>
+            {[["about","About"],["contact","Contact"],["contact","Careers"]].map(([id,l],i) => (
+              <span key={i} className="footer-link" onClick={() => onNav(id)}>{l}</span>
+            ))}
+          </div>
+          <div>
+            <div className="footer-col-title">Legal</div>
+            {[["terms","Terms"],["privacy","Privacy"]].map(([id,l]) => (
+              <span key={id} className="footer-link" onClick={() => onNav(id)}>{l}</span>
+            ))}
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <span className="footer-copy">© 2026 Leadwise AI Ltd. All rights reserved.</span>
+          <span className="footer-copy">Made with signal.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── STACK PAGE ──────────────────────────────────────────────────────────────
+
+const STACK_CARDS = [
+  { label:"Signal Layer", title:"Intent & Trigger Engine", desc:"Monitors 40+ data streams including G2 intent, web behaviour, LinkedIn signals, job postings, funding events, and news mentions. Refreshes every 4 hours.", tags:["Real-time","Webhook","REST API"] },
+  { label:"Matching Layer", title:"ICP Scoring Model", desc:"Gradient-boosted classifier trained on closed-won CRM data. Produces a 0–100 ICP fit score and urgency score for every surfaced account.", tags:["ML","CRM-trained","Continuous"] },
+  { label:"Enrichment Layer", title:"Contact Graph", desc:"140M+ B2B contacts with 6-layer email and mobile verification. Buying committee inference maps champion, economic buyer, and influencer roles.", tags:["6-layer verify","Committee mapping"] },
+  { label:"Context Layer", title:"Account Intelligence", desc:"LLM-powered company summaries, recent news digests, product change logs, and competitive landscape — assembled per account before rep engagement.", tags:["LLM-synthesised","Structured","Fresh"] },
+  { label:"Outbound Layer", title:"Sequence Builder", desc:"Signal-referenced multi-step sequences drafted automatically. Email, LinkedIn, and call scripts. Exports to Outreach, Salesloft, Apollo, HubSpot, and more.", tags:["Multi-channel","Human-reviewed","Personalized"] },
+  { label:"Learning Layer", title:"Feedback Loop Engine", desc:"Reply rates, meeting rates, and won deals flow back to re-weight signal importance and sharpen ICP scoring. Gets smarter with every send.", tags:["Adaptive","CRM-connected","Compounding"] },
+];
+
+function StackPage({ onNav }) {
+  const ref = useFadeIn();
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="The stack" />
+          <h2 style={{marginBottom:24}}>Six layers.<br/>One pipeline.</h2>
+          <p className="lead" style={{marginBottom:64,maxWidth:"52ch"}}>Leadwise is a vertically integrated outbound intelligence platform. Each layer feeds the next — signal becomes context, context becomes outbound, outbound becomes learning.</p>
+          <div ref={ref} className="stack-grid fade-in">
+            {STACK_CARDS.map(c => (
+              <div key={c.title} className="stack-card">
+                <div className="stack-card-label">{c.label}</div>
+                <div className="stack-card-title">{c.title}</div>
+                <p className="stack-card-desc">{c.desc}</p>
+                <div>{c.tags.map(t => <span key={t} className="stack-tag">{t}</span>)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container">
+          <SectionLabel text="Stack roadmap" />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"1px",background:"var(--line)"}}>
+            {[
+              {stage:"Now",items:["Intent scoring","ICP calibration","Email + LinkedIn sequences","Outreach / Salesloft export","CRM enrichment sync"]},
+              {stage:"Q3 2026",items:["Call script AI","Voicemail drop","Video prospecting briefs","Slack signal alerts","Team pipeline view"]},
+              {stage:"Q4 2026",items:["Multi-language outbound","Autonomous re-engagement","Territory management","Custom signal webhooks","Agency white-label"]},
+            ].map(col => (
+              <div key={col.stage} style={{background:"var(--bg)",padding:"clamp(28px,3vw,44px)"}}>
+                <p className="label-accent" style={{marginBottom:20}}>{col.stage}</p>
+                {col.items.map(item => (
+                  <div key={item} style={{display:"flex",gap:10,marginBottom:10,alignItems:"flex-start"}}>
+                    <span style={{color:"var(--accent)",fontSize:10,marginTop:4}}>◆</span>
+                    <span style={{fontSize:13,color:"var(--fg-dim)"}}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── SIGNALS PAGE ─────────────────────────────────────────────────────────────
+
+const SIGNAL_SOURCES = [
+  { type:"intent", name:"G2 Intent", desc:"Category and competitor review browsing, comparison activity, and product page visits across G2's buyer network." },
+  { type:"intent", name:"Web Intent", desc:"Bombora-powered B2B intent data covering 5,000+ topics across 4M+ company IP ranges." },
+  { type:"firmographic", name:"Funding Events", desc:"Crunchbase + PitchBook alerts for funding rounds, acquisitions, and public filings within 24 hours of announcement." },
+  { type:"firmographic", name:"Headcount Growth", desc:"LinkedIn headcount delta tracked weekly. AE, SDR, and RevOps hiring patterns surfaced as buying signals." },
+  { type:"behavioral", name:"Job Postings", desc:"Indeed + LinkedIn + Greenhouse scraped daily. Role keywords indicate initiative, budget, and vendor pain." },
+  { type:"technographic", name:"Tech Stack Changes", desc:"BuiltWith + HG Insights layer detects installs, removals, and upgrades of 6,000+ tech products." },
+  { type:"behavioral", name:"News & PR", desc:"Company blog posts, press releases, and media coverage monitored for expansion, leadership change, and product launch signals." },
+  { type:"firmographic", name:"Executive Changes", desc:"C-suite and VP hires/departures tracked via LinkedIn and SEC filings. New leaders are prime outbound targets." },
+  { type:"behavioral", name:"LinkedIn Activity", desc:"Company posts, employee engagement surges, and product announcements captured as behavioural signals." },
+  { type:"technographic", name:"Domain Authority", desc:"Organic growth trajectory and SEO investment indicate expansion and increased marketing budget." },
+  { type:"intent", name:"Review Activity", desc:"New G2, Capterra, and Trustpilot reviews — both written and read — signal active vendor evaluation." },
+  { type:"firmographic", name:"Company Filings", desc:"SEC 10-K/10-Q, UK Companies House, and EU registry filings for revenue growth and risk indicators." },
+];
+
+function SignalsPage({ onNav }) {
+  const [filter, setFilter] = useState("all");
+  const filtered = filter==="all" ? SIGNAL_SOURCES : SIGNAL_SOURCES.filter(s => s.type===filter);
+  const ref = useFadeIn();
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="Signal sources" />
+          <h2 style={{marginBottom:24}}>40+ signals.<br/>One score.</h2>
+          <p className="lead" style={{marginBottom:48,maxWidth:"52ch"}}>Every signal source is weighted by predictive value for your specific ICP. No static lists — a live, converging picture of in-market accounts.</p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:32}}>
+            {[["all","All"],["intent","Intent"],["firmographic","Firmographic"],["behavioral","Behavioral"],["technographic","Technographic"]].map(([v,l]) => (
+              <button key={v} onClick={() => setFilter(v)}
+                style={{fontFamily:"var(--f-mono)",fontSize:10,letterSpacing:"0.12em",padding:"6px 14px",
+                  border:"1px solid",cursor:"pointer",background:"transparent",
+                  borderColor:filter===v?"var(--accent)":"var(--line-strong)",
+                  color:filter===v?"var(--accent)":"var(--fg-dim)",transition:"all 150ms"}}>
+                {l}
+              </button>
+            ))}
+          </div>
+          <div ref={ref} className="sig-source-grid fade-in">
+            {filtered.map(s => (
+              <div key={s.name} className="sig-source">
+                <div className={`sig-type-badge sig-type-${s.type}`}>{s.type}</div>
+                <div className="sig-source-name">{s.name}</div>
+                <p className="sig-source-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── OUTBOUND PAGE ────────────────────────────────────────────────────────────
+
+const OUTBOUND_SIGNALS = [
+  { dot:"var(--accent)", company:"Watershed", detail:"Series C · Signal score 96 · 3 contacts identified", time:"2m ago" },
+  { dot:"var(--accent)", company:"Hex", detail:"New VP Sales hired · 4 open AE roles · Intent spike", time:"11m ago" },
+  { dot:"#d6ae96", company:"Linear", detail:"G2 searches: 8 this week · Stack: added HubSpot", time:"34m ago" },
+  { dot:"#d6ae96", company:"Retool", detail:"Series D funding · Headcount +22% QoQ", time:"1h ago" },
+  { dot:"#96aabe", company:"Figma", detail:"Job postings: 3 RevOps, 2 Ops Analyst", time:"2h ago" },
+  { dot:"#96aabe", company:"Notion", detail:"Tech change: Replaced Zendesk with Intercom", time:"3h ago" },
+];
+
+function OutboundPage({ onNav }) {
+  const ref = useFadeIn();
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="Outbound intelligence" />
+          <h2 style={{marginBottom:24}}>The pipeline<br/>panel.</h2>
+          <p className="lead" style={{marginBottom:64,maxWidth:"52ch"}}>A live view of your outbound motion — signals firing, sequences queued, and accounts progressing through your pipeline.</p>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1px",background:"var(--line)"}}>
+            <div style={{background:"var(--bg)",padding:"clamp(24px,3vw,40px)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+                <span className="label">Live signal feed</span>
+                <span style={{display:"flex",alignItems:"center",gap:6}}>
+                  <span className="blink" style={{color:"var(--accent)"}}>●</span>
+                  <span className="hint">Active</span>
+                </span>
+              </div>
+              <div ref={ref} className="fade-in">
+                {OUTBOUND_SIGNALS.map((s,i) => (
+                  <div key={i} className="signal-row">
+                    <div className="signal-dot" style={{background:s.dot}}/>
+                    <div className="signal-body">
+                      <div className="signal-company">{s.company}</div>
+                      <div className="signal-detail">{s.detail}</div>
+                    </div>
+                    <div className="signal-time">{s.time}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{background:"var(--bg)",padding:"clamp(24px,3vw,40px)"}}>
+              <span className="label" style={{display:"block",marginBottom:20}}>Signal → Send Pipeline</span>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {[
+                  {label:"Signals captured",val:847},
+                  {label:"ICP qualified",val:124},
+                  {label:"Sequences drafted",val:89},
+                  {label:"In rep review",val:34},
+                  {label:"Sent this week",val:212},
+                  {label:"Replies received",val:28},
+                  {label:"Meetings booked",val:9},
+                ].map((item,i) => (
+                  <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+                    padding:"10px 14px",background:"var(--bg-2)",borderLeft:`2px solid ${i<2?"var(--accent)":i<5?"#d6ae96":"#8ebaa4"}`}}>
+                    <span style={{fontFamily:"var(--f-mono)",fontSize:11,color:"var(--fg-dim)"}}>{item.label}</span>
+                    <span style={{fontFamily:"var(--f-display)",fontSize:20,fontWeight:300,color:"var(--fg)"}}>{item.val}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── INTEL PAGE ───────────────────────────────────────────────────────────────
+
+function IntelPage({ onNav }) {
+  const ref = useFadeIn();
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="Market intelligence" />
+          <h2 style={{marginBottom:24}}>Know your<br/>market cold.</h2>
+          <p className="lead" style={{marginBottom:64,maxWidth:"52ch"}}>The Leadwise Intel layer gives you a live map of your total addressable market — updated continuously as signals fire.</p>
+          <div className="intel-stat-row">
+            {[
+              {val:"2.4M+", label:"Accounts monitored"},
+              {val:"140M+", label:"Contacts in graph"},
+              {val:"40+", label:"Signal sources"},
+              {val:"94%", label:"Contact verify rate"},
+            ].map(s => (
+              <div key={s.label} className="intel-stat">
+                <div style={{fontFamily:"var(--f-display)",fontSize:"clamp(32px,4vw,56px)",fontWeight:300,letterSpacing:"-0.04em",color:"var(--accent)",lineHeight:1}}>{s.val}</div>
+                <div style={{fontFamily:"var(--f-mono)",fontSize:10,letterSpacing:"0.12em",textTransform:"uppercase",color:"var(--fg-faint)",marginTop:8}}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="section">
+        <div className="container">
+          <SectionLabel text="TAM mapping" />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1px",background:"var(--line)"}}>
+            <div style={{background:"var(--bg)",padding:"clamp(28px,3vw,44px)"}}>
+              <h3 style={{marginBottom:16}}>Total addressable market</h3>
+              <p style={{fontSize:14,color:"var(--fg-dim)",lineHeight:1.65,marginBottom:24}}>Leadwise maps your full TAM against your ICP criteria — showing you not just who exists, but who is in-market right now.</p>
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {[
+                  {label:"Total TAM accounts",val:"2.4M",pct:100},
+                  {label:"ICP-fit accounts",val:"186K",pct:78},
+                  {label:"Active signal accounts",val:"34K",pct:42},
+                  {label:"High urgency (score 80+)",val:"4.2K",pct:18},
+                ].map((r,i) => (
+                  <div key={i} style={{padding:"12px 14px",background:"var(--bg-2)"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                      <span style={{fontFamily:"var(--f-mono)",fontSize:11,color:"var(--fg-dim)"}}>{r.label}</span>
+                      <span style={{fontFamily:"var(--f-display)",fontSize:16,fontWeight:300,color:"var(--fg)"}}>{r.val}</span>
+                    </div>
+                    <div style={{height:2,background:"var(--fg-ghost)",borderRadius:2}}>
+                      <div style={{height:"100%",width:`${r.pct}%`,background:"var(--accent)",borderRadius:2}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{background:"var(--bg)",padding:"clamp(28px,3vw,44px)"}}>
+              <h3 style={{marginBottom:16}}>Signal distribution</h3>
+              <p style={{fontSize:14,color:"var(--fg-dim)",lineHeight:1.65,marginBottom:24}}>How signals are distributed across your current TAM — updated every 4 hours.</p>
+              {[
+                {type:"Funding events",count:142,color:"var(--accent)"},
+                {type:"Headcount growth",count:891,color:"#d6ae96"},
+                {type:"Tech stack changes",count:634,color:"#8ebaa4"},
+                {type:"G2 intent",count:1204,color:"#96aabe"},
+                {type:"Job postings",count:2341,color:"var(--fg-faint)"},
+              ].map((s,i) => (
+                <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 0",borderBottom:"1px solid var(--line)"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <div style={{width:8,height:8,borderRadius:"50%",background:s.color,flexShrink:0}}/>
+                    <span style={{fontSize:13,color:"var(--fg-dim)"}}>{s.type}</span>
+                  </div>
+                  <span style={{fontFamily:"var(--f-mono)",fontSize:12,color:"var(--fg)"}}>{s.count.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── ABOUT PAGE ──────────────────────────────────────────────────────────────
+
+function AboutPage({ onNav }) {
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="About" />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"80px",alignItems:"start"}}>
+            <div>
+              <h2 style={{marginBottom:24}}>Built for the<br/>signal era.</h2>
+              <p className="lead" style={{marginBottom:24,maxWidth:"44ch"}}>Leadwise was founded on a simple belief: outbound shouldn't be a numbers game. The best reps win on timing and context — not volume.</p>
+              <p style={{fontSize:14,color:"var(--fg-dim)",lineHeight:1.75,marginBottom:16}}>We built Leadwise because we kept seeing the same problem: great sales teams drowning in noise, missing the accounts that were genuinely ready to buy — because those signals were scattered across dozens of tools and data sources.</p>
+              <p style={{fontSize:14,color:"var(--fg-dim)",lineHeight:1.75}}>Leadwise brings those signals together, scores them against your ICP, and turns them into outbound — fast enough to matter.</p>
+            </div>
+            <div>
+              <div className="about-vals">
+                {[
+                  {title:"Precision over volume", desc:"We believe one perfectly-timed, signal-referenced message beats fifty generic ones. Everything we build reflects that."},
+                  {title:"Reps in the loop", desc:"AI should do the research. Humans should own the relationship. We never send without a rep's approval."},
+                  {title:"Transparent scoring", desc:"No black boxes. Every account score shows which signals fired, when, and why — so reps can trust the output."},
+                  {title:"Compounding intelligence", desc:"Every reply, meeting, and closed deal makes Leadwise smarter. The longer you use it, the better it gets."},
+                ].map(v => (
+                  <div key={v.title} className="about-val">
+                    <div className="about-val-title">{v.title}</div>
+                    <p className="about-val-desc">{v.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── CONTACT PAGE ─────────────────────────────────────────────────────────────
+
+function ContactPage({ onNav }) {
+  const [submitted, setSubmitted] = useState(false);
+  return (
+    <div style={{paddingTop:80}}>
+      <section className="section" style={{borderTop:"none"}}>
+        <div className="container">
+          <SectionLabel text="Contact" />
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"80px",alignItems:"start"}}>
+            <div>
+              <h2 style={{marginBottom:24}}>Let's talk<br/>pipeline.</h2>
+              <p className="lead" style={{maxWidth:"40ch",marginBottom:40}}>Tell us about your outbound motion and we'll show you exactly what Leadwise would look like for your team.</p>
+              <div style={{display:"flex",flexDirection:"column",gap:16}}>
+                {[["Email","hello@leadwise.ai"],["Based in","London & New York"],["Response time","< 4 hours"]].map(([l,v]) => (
+                  <div key={l}>
+                    <div className="hint" style={{marginBottom:4}}>{l}</div>
+                    <div style={{fontSize:14,color:"var(--fg)"}}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              {submitted ? (
+                <div style={{padding:32,border:"1px solid var(--accent)",background:"var(--accent-faint)"}}>
+                  <p className="label-accent" style={{marginBottom:8}}>✓ Message received</p>
+                  <p style={{fontSize:14,color:"var(--fg-dim)"}}>We'll be in touch within 4 hours. In the meantime, feel free to explore the stack.</p>
+                  <div style={{marginTop:24}}>
+                    <Btn primary onClick={() => onNav("stack")}>Explore the stack</Btn>
+                  </div>
+                </div>
+              ) : (
+                <div className="contact-form">
+                  <div className="form-field">
+                    <label className="form-label">Full name</label>
+                    <input className="form-input" type="text" placeholder="Alex Chen"/>
+                  </div>
+                  <div className="form-field">
+                    <label className="form-label">Work email</label>
+                    <input className="form-input" type="email" placeholder="alex@company.com"/>
+                  </div>
+                  <div className="form-field">
+                    <label className="form-label">Company</label>
+                    <input className="form-input" type="text" placeholder="Acme Corp"/>
+                  </div>
+                  <div className="form-field">
+                    <label className="form-label">Team size</label>
+                    <select className="form-input">
+                      <option>1–5 reps</option>
+                      <option>6–15 reps</option>
+                      <option>16–50 reps</option>
+                      <option>50+ reps</option>
+                    </select>
+                  </div>
+                  <div className="form-field">
+                    <label className="form-label">What are you trying to solve?</label>
+                    <textarea className="form-input" placeholder="Tell us about your current outbound motion..."/>
+                  </div>
+                  <Btn primary onClick={() => setSubmitted(true)}>Send message</Btn>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── LEGAL PAGES ─────────────────────────────────────────────────────────────
+
+function TermsPage({ onNav }) {
+  return (
+    <div>
+      <div className="legal-body container">
+        <p className="label-accent" style={{marginBottom:16}}>Legal</p>
+        <h2>Terms of Service</h2>
+        <p style={{color:"var(--fg-faint)",fontFamily:"var(--f-mono)",fontSize:11,marginBottom:32}}>Last updated: January 2026</p>
+        {[
+          ["Acceptance of Terms","By accessing or using Leadwise AI, you agree to be bound by these Terms of Service. If you do not agree, please do not use the service."],
+          ["Use of Service","Leadwise AI provides B2B sales intelligence and outbound automation services. You agree to use the service only for lawful business purposes and in accordance with all applicable laws and regulations."],
+          ["Data & Privacy","We process business contact and firmographic data in accordance with our Privacy Policy and applicable data protection laws including GDPR and CCPA. You are responsible for ensuring your use of our outputs complies with applicable laws."],
+          ["Intellectual Property","All content, features, and functionality of Leadwise AI are owned by Leadwise AI Ltd and protected by intellectual property laws. You may not reproduce or distribute any part of the service without written permission."],
+          ["Limitation of Liability","Leadwise AI shall not be liable for any indirect, incidental, or consequential damages arising from your use of the service. Our total liability shall not exceed the amount paid by you in the 12 months preceding the claim."],
+          ["Termination","We reserve the right to terminate or suspend access to the service at our discretion, with or without cause, with reasonable notice where practicable."],
+          ["Governing Law","These terms are governed by the laws of England and Wales. Any disputes shall be subject to the exclusive jurisdiction of the courts of England and Wales."],
+        ].map(([title, text]) => (
+          <div key={title}>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </div>
+        ))}
+        <div style={{marginTop:40}}>
+          <Btn ghost onClick={() => onNav("home")}>← Back to home</Btn>
+        </div>
+      </div>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+function PrivacyPage({ onNav }) {
+  return (
+    <div>
+      <div className="legal-body container">
+        <p className="label-accent" style={{marginBottom:16}}>Legal</p>
+        <h2>Privacy Policy</h2>
+        <p style={{color:"var(--fg-faint)",fontFamily:"var(--f-mono)",fontSize:11,marginBottom:32}}>Last updated: January 2026</p>
+        {[
+          ["Information We Collect","We collect information you provide directly (name, email, company), information generated through your use of our service (usage data, preferences), and business contact data processed on your behalf as part of the service."],
+          ["How We Use Your Information","We use your information to provide and improve the service, communicate with you about your account, send relevant product updates, and comply with legal obligations. We do not sell your personal data."],
+          ["Data Processing","Leadwise acts as a data processor for business contact information used in your outbound campaigns. You remain the data controller for this information and are responsible for ensuring a lawful basis for processing."],
+          ["Data Retention","We retain your account data for the duration of your subscription plus 12 months. Business contact data processed on your behalf is retained for the duration of your active campaigns."],
+          ["Your Rights","You have the right to access, correct, or delete your personal data. To exercise these rights, contact us at privacy@leadwise.ai. We will respond within 30 days."],
+          ["Cookies","We use essential cookies to operate the service and analytics cookies to understand usage. You can control cookie preferences through your browser settings."],
+          ["Contact","For privacy-related questions, contact our Data Protection Officer at privacy@leadwise.ai or write to Leadwise AI Ltd, 20 Farringdon Road, London EC1M 3HE."],
+        ].map(([title, text]) => (
+          <div key={title}>
+            <h3>{title}</h3>
+            <p>{text}</p>
+          </div>
+        ))}
+        <div style={{marginTop:40}}>
+          <Btn ghost onClick={() => onNav("home")}>← Back to home</Btn>
+        </div>
+      </div>
+      <Footer onNav={onNav}/>
+    </div>
+  );
+}
+
+// ─── APP ─────────────────────────────────────────────────────────────────────
+
+const TWEAK_DEFAULTS = { accent:"#ba8b8e", grain:0.045, scanline:0.035, dotgrid:0.06 };
+
+function App() {
+  const [page, setPage] = useState("home");
+  const [t, set] = useTweaks(TWEAK_DEFAULTS);
+
+  useEffect(() => {
     const r = document.documentElement;
     r.style.setProperty("--accent", t.accent);
     r.style.setProperty("--accent-dim", t.accent + "59");
@@ -365,67 +1545,43 @@ function App() {
 
   const onNav = (p) => {
     setPage(p);
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top:0, behavior:"instant" });
   };
 
   return (
     <>
       <Nav page={page} onNav={onNav} />
-
-      {page === "home" && (
-        <>
-          <Hero onNav={onNav} />
-          <Approach />
-          <LogoStrip />
-          <HowItWorks />
-          <QualifiedCalendar />
-          <ICPSection />
-          <Workflow />
-          <Method onNav={onNav} />
-          <WhyLeadwise />
-          <Stats onNav={onNav} />
-          <LiveProspectView />
-          <FAQ />
-          <Footer onNav={onNav} />
-        </>
-      )}
-      {page === "stack"    && <StackPage    onNav={onNav} />}
-      {page === "signals"  && <SignalsPage  onNav={onNav} />}
-      {page === "outbound" && <OutboundPage onNav={onNav} />}
-      {page === "intel"    && <IntelPage    onNav={onNav} />}
-      {page === "about"    && <AboutPage    onNav={onNav} />}
-      {page === "contact"  && <ContactPage  onNav={onNav} />}
-      {page === "terms"    && <TermsPage    onNav={onNav} />}
-      {page === "privacy"  && <PrivacyPage  onNav={onNav} />}
-
-      {page !== "contact" && page !== "home" ? null : null}
-
-      <TweaksPanel title="Tweaks">
-        <TweakSection label="Accent" />
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 6 }}>
-          {ACCENT_PRESETS.map(p => (
-            <button key={p.v} onClick={() => setTweak("accent", p.v)} title={p.label} style={{
-              width: 28, height: 28, border: t.accent === p.v ? "2px solid #fff" : "1px solid rgba(0,0,0,0.2)",
-              background: p.v, cursor: "pointer", padding: 0,
-            }} />
-          ))}
-        </div>
-        <TweakColor label="Custom" value={t.accent} onChange={(v) => setTweak("accent", v)} />
-        <TweakSection label="Texture" />
-        <TweakSlider label="Grain" value={t.grain} min={0} max={0.15} step={0.005}
-          onChange={(v) => setTweak("grain", v)} />
-        <TweakSlider label="Scanlines" value={t.scanline} min={0} max={0.12} step={0.005}
-          onChange={(v) => setTweak("scanline", v)} />
-        <TweakSlider label="Dot grid" value={t.dotgrid} min={0} max={0.18} step={0.005}
-          onChange={(v) => setTweak("dotgrid", v)} />
-      </TweaksPanel>
+      {page === "home" && <>
+        <Hero onNav={onNav}/>
+        <Ticker/>
+        <Approach/>
+        <LogoStrip/>
+        <HowItWorks/>
+        <QualifiedCalendar/>
+        <ICPSection/>
+        <Workflow/>
+        <Method onNav={onNav}/>
+        <WhyLeadwise/>
+        <Stats onNav={onNav}/>
+        <LiveProspectView/>
+        <FAQ/>
+        <Footer onNav={onNav}/>
+      </>}
+      {page === "stack"    && <StackPage    onNav={onNav}/>}
+      {page === "signals"  && <SignalsPage  onNav={onNav}/>}
+      {page === "outbound" && <OutboundPage onNav={onNav}/>}
+      {page === "intel"    && <IntelPage    onNav={onNav}/>}
+      {page === "about"    && <AboutPage    onNav={onNav}/>}
+      {page === "contact"  && <ContactPage  onNav={onNav}/>}
+      {page === "terms"    && <TermsPage    onNav={onNav}/>}
+      {page === "privacy"  && <PrivacyPage  onNav={onNav}/>}
+      <TweaksPanel t={t} set={set}/>
     </>
   );
 }
 
 const root = ReactDOM.createRoot(document.getElementById("app"));
-root.render(<App />);
+root.render(<App/>);
 </script>
-
-
-</body></html>
+</body>
+</html>
